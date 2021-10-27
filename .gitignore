@@ -1,4 +1,5 @@
 node_modules/
+Secrets.js 
 .expo/
 npm-debug.*
 *.jks
