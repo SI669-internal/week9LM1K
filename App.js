@@ -1,256 +1,103 @@
 import React from 'react';
 import { FlatList, StyleSheet, Text, TextInput, View, Button } from 'react-native';
 
-class App1 extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-      data: [
-        {text: 'Jim', key: '1'},
-        {text: 'Jen', key: '2'},
-        {text: 'Jia', key: '3'},
-      ]
-    }
-  }
+function App1 () { // version with Hooks
 
-  render() {
-    return (
-      <View style={styles.container}>
-        <View style={styles.inputRow}>
-          <TextInput
-            style={styles.inputBox}
-          />
-          <Button title='Add'/>
-        </View>
-        <FlatList
-          data = {this.state.data}
-          renderItem = {({item}) => {
-            return (
-              <View style={styles.itemContainer}>
-                <Text>{item.text}</Text>
-                <Button title='Edit'/>
-                <Button title='Delete'/>
-              </View>            
-            );
+  const initPeopleList = [
+    {firstName: 'John', lastName: 'Doe', key: '1'},
+    {firstName: 'Jen', lastName: 'Buck', key: '2'},
+    {firstName: 'Jia', lastName: 'Li', key: '3'},
+  ];
+  const [peopleList, setPeopleList] = React.useState(initPeopleList);
+  const [firstNameInput, setFirstNameInput] = React.useState('');
+  const [lastNameInput, setLastNameInput] = React.useState('');
+  const [mode, setMode] = React.useState('add');
+  const [selectedItemKey, setSelectedItemKey] = React.useState('none');
+
+  return (
+    <View style={styles.container}>
+
+      {/* Input Header */}
+      <View style={styles.inputRow}>
+        <TextInput
+          style={styles.inputBox}
+          onChangeText={(text) => {
+            setFirstNameInput(text);
           }}
+          value={firstNameInput}
         />
-      </View>
-    );
-  }
-}
-
-class App2 extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-      data: [
-        {text: 'Jim', key: '1'},
-        {text: 'Jen', key: '2'},
-        {text: 'Jia', key: '3'},
-      ],
-      inputText: ''
-    }
-  }
-
-  render() {
-    return (
-      <View style={styles.container}>
-        <View style={styles.inputRow}>
-          <TextInput
-            style={styles.inputBox}
-            onChangeText={(text) => {
-              this.setState(
-                {inputText: text}
-              )
-            }}
-            value={this.state.inputText}
-          />
-          <Button title='Add'
-            onPress={()=>{
-              this.state.data.push({
-                text: this.state.inputText, 
+        <TextInput
+          style={styles.inputBox}
+          onChangeText={(text) => {
+            setLastNameInput(text);
+          }}
+          value={lastNameInput}
+        />
+        <Button title={mode === 'add'? 'Add' : 'Save'}
+          onPress={()=>{
+            if (mode === 'add') {
+              let d = Array.from(peopleList);
+              d.push({
+                firstName: firstNameInput,
+                lastName: lastNameInput, 
                 key: '' + Math.floor(Math.random() * 10000000)
               });
-              this.setState({
-                data: this.state.data
-              })
-            }}
-          
-          />
-        </View>
-        <FlatList
-          data = {this.state.data}
-          renderItem = {({item}) => {
-            return (
-              <View style={styles.itemContainer}>
-                <Text>{item.text}</Text>
-                <Button title='Edit'/>
-                <Button title='Delete'/>
-              </View>            
-            );
-          }}
+              setPeopleList(d);
+              setFirstNameInput('');
+              setLastNameInput('');
+            } else {
+              let d = Array.from(peopleList);
+              let idx = d.findIndex((elem)=>elem.key === selectedItemKey);
+              d[idx].firstName = firstNameInput;
+              d[idx].lastName = lastNameInput;
+              setPeopleList(d);
+              setFirstNameInput('');
+              setLastNameInput('');
+              setMode('add');
+              setSelectedItemKey('none');
+            }
+          }}          
         />
       </View>
-    );
-  }
-}
 
-
-class App3 extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-      data: [
-        {text: 'Jim', key: '1'},
-        {text: 'Jen', key: '2'},
-        {text: 'Jia', key: '3'},
-      ],
-      inputText: '',
-    }
-  }
-
-  render() {
-    return (
-      <View style={styles.container}>
-        <View style={styles.inputRow}>
-          <TextInput
-            style={styles.inputBox}
-            onChangeText={(text) => {
-              this.setState(
-                {inputText: text}
-              )
-            }}
-            value={this.state.inputText}
-          />
-          <Button title={'Add'}
-            onPress={()=>{
-              this.state.data.push({
-                text: this.state.inputText, 
-                key: '' + Math.floor(Math.random() * 10000000)
-              });
-              this.setState({
-                data: this.state.data,
-                inputText: ''
-              })
-            }}          
-          />
-        </View>
-        <FlatList
-          data = {this.state.data}
-          renderItem = {({item}) => {
-            return (
-              <View style={styles.itemContainer}>
-                <Text>
-                  {item.text}  
+      {/* List Display */}
+      <FlatList
+        data = {peopleList}
+        renderItem = {({item}) => {
+          return (
+            <View style={styles.itemContainer}>
+              <View style={styles.itemTextContainer}>
+                <Text style={[
+                    styles.itemText, 
+                    selectedItemKey === item.key ? {color: 'red'}: {}
+                  ]}>
+                  {item.firstName} {item.lastName}  
                 </Text>
-                <Button title='Edit'/>
-                <Button title='Delete'
-                  onPress={()=> {
-                    let idx = this.state.data.findIndex((elem)=>elem.key === item.key);
-                    this.state.data.splice(idx, 1);
-                    this.setState({
-                      data: this.state.data
-                    })
-                  }}
-                />
-              </View>            
-            );
-          }}
-        />
-      </View>
-    );
-  }
-}
-
-
-class App4 extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-      data: [
-        {text: 'Jim', key: '1'},
-        {text: 'Jen', key: '2'},
-        {text: 'Jia', key: '3'},
-      ],
-      inputText: '',
-      mode: 'add',
-      selectedItemKey: 'none'
-    }
-  }
-
-  render() {
-    return (
-      <View style={styles.container}>
-        <View style={styles.inputRow}>
-          <TextInput
-            style={styles.inputBox}
-            onChangeText={(text) => {
-              this.setState(
-                {inputText: text}
-              )
-            }}
-            value={this.state.inputText}
-          />
-          <Button title={this.state.mode === 'add'? 'Add' : 'Save'}
-            onPress={()=>{
-
-              if (this.state.mode === 'add') {
-                this.state.data.push({
-                  text: this.state.inputText, 
-                  key: '' + Math.floor(Math.random() * 10000000)
-                });
-                this.setState({
-                  data: this.state.data,
-                  inputText: ''
-                })
-              } else {
-                let idx = this.state.data.findIndex((elem)=>elem.key === this.state.selectedItemKey);
-                this.state.data[idx].text = this.state.inputText;
-                this.setState({
-                  data: this.state.data,
-                  inputText: '',
-                  mode: 'add',
-                  selectedItemKey: 'none'
-                })
-              }
-            }}          
-          />
-        </View>
-        <FlatList
-          data = {this.state.data}
-          renderItem = {({item}) => {
-            return (
-              <View style={styles.itemContainer}>
-                <Text style={this.state.selectedItemKey === item.key ? 
-                    {color: 'red'}: {}}>
-                  {item.text}  
-                </Text>
+              </View>
+              <View style={styles.itemButtonContainer}>
                 <Button title='Edit'
                   onPress={()=>{
-                    this.setState({
-                      selectedItemKey: item.key,
-                      mode: 'edit',
-                      inputText: item.text
-                    })
-                  }}
-                
+                    setSelectedItemKey(item.key);
+                    setFirstNameInput(item.firstName);
+                    setLastNameInput(item.lastName);
+                    setMode('edit');
+                  }}              
                 />
                 <Button title='Delete'
                   onPress={()=> {
-                    let idx = this.state.data.findIndex((elem)=>elem.key === item.key);
-                    this.state.data.splice(idx, 1);
-                    this.setState({
-                      data: this.state.data
-                    })
+                    let d = Array.from(peopleList);
+                    let idx = d.findIndex((elem)=>elem.key === item.key);
+                    d.splice(idx, 1);
+                    setPeopleList(d);
                   }}
                 />
-              </View>            
-            );
-          }}
-        />
-      </View>
-    );
-  }
+              </View>
+            </View>            
+          );
+        }}
+      />
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -259,26 +106,39 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     paddingTop: '25%'
   },
+  inputRow: {
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'space-around',
+    paddingBottom: '15%',
+    paddingHorizontal: '3%'
+  },
+  inputBox: {
+    borderWidth: 1,
+    borderColor: 'lightgray',
+    width: '30%',
+    alignSelf: 'center',
+    fontSize: 24
+  }, 
   itemContainer: {
     alignItems: 'center',
     justifyContent: 'space-around',
     flexDirection: 'row'
   },
-  inputBox: {
-    borderWidth: 2,
-    borderColor: 'black',
-    width: '50%',
-    alignSelf: 'center'
-  }, 
-  inputRow: {
+  itemTextContainer: {
+    flex: 0.6,
+    paddingLeft: '5%'
+  },
+  itemText: {
+    fontSize: 24
+  },
+  itemButtonContainer: {
+    flex: 0.4,
     flexDirection: 'row',
-    width: '80%',
-    justifyContent: 'space-around',
-    paddingBottom: '15%'
+    justifyContent: 'space-evenly'
   }
+
 });
 
-//export default App1;
-//export default App2;
-//export default App3;
-export default App4;
+export default App1;
+
